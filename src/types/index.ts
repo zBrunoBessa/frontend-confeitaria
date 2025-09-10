@@ -40,9 +40,10 @@ export interface FilterOptions {
 
 export interface User {
   id: number;
-  nome: string;
-  email: string;
   username: string;
+  email: string;
+  firstName: string;
+  lastName: string;
   role: 'ADMIN' | 'USER';
 }
 
@@ -52,9 +53,14 @@ export interface LoginRequest {
 }
 
 export interface LoginResponse {
-  user: User;
   token: string;
-  tokenType: string;
+  type: string;
+  id: number;
+  username: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: 'ADMIN' | 'USER';
 }
 
 export interface AuthContextType {

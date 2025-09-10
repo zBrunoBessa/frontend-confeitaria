@@ -60,7 +60,10 @@ const AuthDebug: React.FC = () => {
         • <strong>Is Admin:</strong> {isAdmin ? "true" : "false"}
       </div>
       <div>
-        • <strong>User:</strong> {user ? user.username || user.nome : "null"}
+        • <strong>User:</strong>{" "}
+        {user
+          ? `${user.firstName} ${user.lastName} (${user.username})`
+          : "null"}
       </div>
       <div>
         • <strong>Token:</strong> {token ? "Presente" : "null"}

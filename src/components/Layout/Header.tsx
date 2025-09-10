@@ -51,7 +51,11 @@ const Header: React.FC<HeaderProps> = ({ onCartClick, onSearchClick }) => {
               <Link
                 to="/admin"
                 className="action-button admin-link"
-                title={`Admin Panel - ${user?.nome}`}
+                title={`Admin Panel - ${
+                  user?.firstName
+                    ? `${user.firstName} ${user.lastName}`
+                    : user?.username
+                }`}
               >
                 <User size={20} />
               </Link>

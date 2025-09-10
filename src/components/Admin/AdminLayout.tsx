@@ -39,7 +39,9 @@ const AdminLayout: React.FC = () => {
           <h2>🧁 Admin Panel</h2>
           <p className="user-info">
             <User size={16} />
-            {user?.nome || user?.username}
+            {user?.firstName
+              ? `${user.firstName} ${user.lastName}`
+              : user?.username}
           </p>
         </div>
 

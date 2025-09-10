@@ -50,12 +50,15 @@ const Login: React.FC = () => {
     } catch (err: any) {
       console.error("Erro no login:", err);
 
+      // Tratar diferentes tipos de erro
       if (err.response?.status === 401) {
         setError("Credenciais inválidas. Verifique seu usuário/email e senha.");
       } else if (err.response?.status === 403) {
         setError("Acesso negado. Apenas administradores podem acessar.");
       } else if (err.response?.data?.message) {
         setError(err.response.data.message);
+      } else if (err.message) {
+        setError(err.message);
       } else {
         setError("Erro ao fazer login. Tente novamente.");
       }

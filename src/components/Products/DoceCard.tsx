@@ -88,3 +88,4 @@ const DoceCard: React.FC<DoceCardProps> = ({ doce }) => {
 };
 
 export default DoceCard;
+

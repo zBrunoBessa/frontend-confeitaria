@@ -41,29 +41,26 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             const parsedUser = JSON.parse(savedUser);
             console.log("📝 Dados do usuário recuperados:", parsedUser);
 
-            // Sempre restaurar os dados do localStorage
-            authService.setAuthToken(savedToken);
+            // Validar token com o servidor
+            try {
+              const serverUser = await authService.getCurrentUser();
+              console.log("✅ Token válido, dados do servidor:", serverUser);
 
-            // Atualizar estado de forma síncrona
-            setUser(parsedUser);
-            setToken(savedToken);
+              // Atualizar com dados do servidor
+              setUser(serverUser);
+              setToken(savedToken);
+              authService.setAuthToken(savedToken);
 
-            // Aguardar um tick para garantir que o estado foi atualizado
-            await new Promise((resolve) => setTimeout(resolve, 50));
-
-            console.log("✅ Autenticação restaurada do localStorage");
-            console.log("👤 Usuário carregado:", parsedUser);
-            console.log("🔑 Token configurado:", !!savedToken);
-            console.log(
-              "📊 Estado após restauração - User:",
-              parsedUser?.nome,
-              "Token:",
-              !!savedToken
-            );
+              // Atualizar localStorage com dados do servidor
+              localStorage.setItem("auth_user", JSON.stringify(serverUser));
+            } catch (error) {
+              console.error("❌ Token inválido ou expirado:", error);
+              // Limpar dados inválidos
+              clearAuthData();
+            }
           } catch (error) {
             console.error("❌ Erro ao fazer parse dos dados salvos:", error);
-            localStorage.removeItem("auth_token");
-            localStorage.removeItem("auth_user");
+            clearAuthData();
           }
         } else {
           console.log("🚫 Nenhum token encontrado no localStorage");
@@ -84,9 +81,28 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setLoading(true);
       const response = await authService.login(credentials);
 
-      const { user: userData, token: authToken } = response;
+      // O backend retorna os dados diretamente, não em um objeto 'user'
+      const {
+        token: authToken,
+        id,
+        username,
+        email,
+        firstName,
+        lastName,
+        role,
+      } = response;
 
-      // Salvar no localStorage primeiro (o interceptor vai pegar automaticamente)
+      // Criar objeto User com os dados recebidos
+      const userData: User = {
+        id,
+        username,
+        email,
+        firstName,
+        lastName,
+        role,
+      };
+
+      // Salvar no localStorage
       localStorage.setItem("auth_token", authToken);
       localStorage.setItem("auth_user", JSON.stringify(userData));
 
@@ -97,12 +113,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setUser(userData);
       setToken(authToken);
 
-      console.log("Token salvo:", authToken);
-      console.log("Usuário logado:", userData);
+      console.log("✅ Login realizado com sucesso");
+      console.log("🔑 Token salvo:", authToken);
+      console.log("👤 Usuário logado:", userData);
 
       // Pequeno delay para garantir que o estado seja atualizado
       await new Promise((resolve) => setTimeout(resolve, 100));
     } catch (error: any) {
+      console.error("❌ Erro no login:", error);
       // Re-throw para que o componente possa tratar o erro
       throw error;
     } finally {
@@ -110,16 +128,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const logout = (): void => {
+  const clearAuthData = (): void => {
     setUser(null);
     setToken(null);
-
-    // Remover do localStorage
     localStorage.removeItem("auth_token");
     localStorage.removeItem("auth_user");
-
-    // Remover token das requisições
     authService.setAuthToken(null);
+  };
+
+  const logout = (): void => {
+    clearAuthData();
   };
 
   const value: AuthContextType = {
