@@ -26,25 +26,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         const savedToken = localStorage.getItem("auth_token");
         const savedUser = localStorage.getItem("auth_user");
 
-        console.log("🔄 Inicializando autenticação...");
-        console.log(
-          "Token no localStorage:",
-          savedToken ? "Presente" : "Ausente"
-        );
-        console.log(
-          "User no localStorage:",
-          savedUser ? "Presente" : "Ausente"
-        );
-
         if (savedToken && savedUser) {
           try {
             const parsedUser = JSON.parse(savedUser);
-            console.log("📝 Dados do usuário recuperados:", parsedUser);
-
             // Validar token com o servidor
             try {
               const serverUser = await authService.getCurrentUser();
-              console.log("✅ Token válido, dados do servidor:", serverUser);
 
               // Atualizar com dados do servidor
               setUser(serverUser);
@@ -62,14 +49,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             console.error("❌ Erro ao fazer parse dos dados salvos:", error);
             clearAuthData();
           }
-        } else {
-          console.log("🚫 Nenhum token encontrado no localStorage");
         }
       } catch (error) {
         console.error("❌ Erro na inicialização da autenticação:", error);
       } finally {
         setLoading(false);
-        console.log("✅ Inicialização da autenticação concluída");
       }
     };
 
@@ -112,10 +96,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       // Atualizar estado
       setUser(userData);
       setToken(authToken);
-
-      console.log("✅ Login realizado com sucesso");
-      console.log("🔑 Token salvo:", authToken);
-      console.log("👤 Usuário logado:", userData);
 
       // Pequeno delay para garantir que o estado seja atualizado
       await new Promise((resolve) => setTimeout(resolve, 100));

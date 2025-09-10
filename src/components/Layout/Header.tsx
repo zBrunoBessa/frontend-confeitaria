@@ -1,5 +1,5 @@
 import React from "react";
-import { ShoppingCart, Search, User } from "lucide-react";
+import { ShoppingCart, Search, User, LogOut } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useCart } from "../../contexts/CartContext";
 import { useAuth } from "../../contexts/AuthContext";
@@ -11,8 +11,16 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ onCartClick, onSearchClick }) => {
   const { getItemCount } = useCart();
-  const { isAuthenticated, isAdmin, user } = useAuth();
+  const { isAuthenticated, isAdmin, user, logout } = useAuth();
   const itemCount = getItemCount();
+
+  const handleLogout = () => {
+    if (window.confirm("Tem certeza que deseja sair?")) {
+      logout();
+      // Redirecionar para a página inicial após logout
+      window.location.href = "/";
+    }
+  };
 
   return (
     <header className="header">
@@ -22,7 +30,7 @@ const Header: React.FC<HeaderProps> = ({ onCartClick, onSearchClick }) => {
             className="logo"
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
           >
-            🧁 Confeitaria Doce Sabor
+            🧁 Confeitaria Beeem Doce
           </h1>
           <nav className="nav">
             <a href="#home">Home</a>
@@ -47,18 +55,33 @@ const Header: React.FC<HeaderProps> = ({ onCartClick, onSearchClick }) => {
               {itemCount > 0 && <span className="cart-badge">{itemCount}</span>}
             </button>
 
-            {isAuthenticated && isAdmin ? (
-              <Link
-                to="/admin"
-                className="action-button admin-link"
-                title={`Admin Panel - ${
-                  user?.firstName
-                    ? `${user.firstName} ${user.lastName}`
-                    : user?.username
-                }`}
-              >
-                <User size={20} />
-              </Link>
+            {isAuthenticated ? (
+              <>
+                {isAdmin && (
+                  <Link
+                    to="/admin"
+                    className="action-button admin-link"
+                    title={`Admin Panel - ${
+                      user?.firstName
+                        ? `${user.firstName} ${user.lastName}`
+                        : user?.username
+                    }`}
+                  >
+                    <User size={20} />
+                  </Link>
+                )}
+                <button
+                  onClick={handleLogout}
+                  className="action-button logout-button"
+                  title={`Logout - ${
+                    user?.firstName
+                      ? `${user.firstName} ${user.lastName}`
+                      : user?.username
+                  }`}
+                >
+                  <LogOut size={20} />
+                </button>
+              </>
             ) : (
               <Link
                 to="/login"

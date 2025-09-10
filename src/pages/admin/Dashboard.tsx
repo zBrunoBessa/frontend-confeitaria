@@ -22,9 +22,7 @@ const Dashboard: React.FC = () => {
     try {
       setLoading(true);
       setError(null);
-      console.log("Carregando estatísticas do dashboard...");
       const data = await adminService.getDashboard();
-      console.log("Estatísticas carregadas:", data);
       setStats(data);
     } catch (err: any) {
       console.error("Erro ao carregar estatísticas:", err);

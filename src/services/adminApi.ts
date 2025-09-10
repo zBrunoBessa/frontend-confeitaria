@@ -20,14 +20,12 @@ adminApi.interceptors.request.use((config) => {
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
-  console.log('AdminAPI Request:', config.method?.toUpperCase(), config.url, 'Token:', token ? 'Presente' : 'Ausente');
   return config;
 });
 
 // Interceptor para lidar com respostas e erros de autenticação
 adminApi.interceptors.response.use(
   (response) => {
-    console.log('AdminAPI Response:', response.status, response.config.url);
     return response;
   },
   (error) => {

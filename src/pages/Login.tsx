@@ -44,7 +44,6 @@ const Login: React.FC = () => {
       await login(formData);
 
       // Redirecionamento após login bem-sucedido
-      console.log("Login realizado com sucesso, redirecionando...");
       const targetPath = (location.state as any)?.from?.pathname || "/admin";
       navigate(targetPath, { replace: true });
     } catch (err: any) {

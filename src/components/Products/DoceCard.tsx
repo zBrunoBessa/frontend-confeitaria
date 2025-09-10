@@ -17,6 +17,10 @@ const DoceCard: React.FC<DoceCardProps> = ({ doce }) => {
       return;
     }
 
+    if (isAdding) {
+      return;
+    }
+
     setIsAdding(true);
 
     try {

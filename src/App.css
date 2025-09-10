@@ -94,6 +94,16 @@ body {
   background: rgba(255, 255, 255, 0.3);
 }
 
+.logout-button {
+  background: #ff6b6b !important;
+  color: white !important;
+}
+
+.logout-button:hover {
+  background: #e55a5a !important;
+  transform: scale(1.05);
+}
+
 .cart-badge {
   position: absolute;
   top: -5px;

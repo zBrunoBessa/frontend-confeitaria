@@ -75,15 +75,24 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
 
   const addToCart = (doce: Doce, quantidade: number = 1) => {
     setCart((prevCart) => {
+      // Criar uma cópia profunda para evitar mutações
       const existingItemIndex = prevCart.items.findIndex(
         (item) => item.doce.id === doce.id
       );
+
       let newItems: CartItem[];
 
       if (existingItemIndex >= 0) {
         // Item já existe, atualizar quantidade
-        newItems = [...prevCart.items];
-        newItems[existingItemIndex].quantidade += quantidade;
+        newItems = prevCart.items.map((item, index) => {
+          if (index === existingItemIndex) {
+            return {
+              ...item,
+              quantidade: item.quantidade + quantidade,
+            };
+          }
+          return item;
+        });
       } else {
         // Novo item
         newItems = [...prevCart.items, { doce, quantidade }];
