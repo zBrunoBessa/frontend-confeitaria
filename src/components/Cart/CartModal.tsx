@@ -1,6 +1,6 @@
 import React from "react";
-import { X, Plus, Minus, ShoppingBag } from "lucide-react";
-import { useCart } from "../../hooks/useCart";
+import { X, ShoppingBag, Plus, Minus, Trash2 } from "lucide-react";
+import { useCart } from "../../contexts/CartContext";
 
 interface CartModalProps {
   isOpen: boolean;
@@ -70,11 +70,12 @@ const CartModal: React.FC<CartModalProps> = ({ isOpen, onClose }) => {
                             updateQuantity(item.doce.id, item.quantidade - 1)
                           }
                           className="quantity-btn"
-                          disabled={item.quantidade <= 1}
                         >
                           <Minus size={16} />
                         </button>
-                        <span className="quantity">{item.quantidade}</span>
+                        <span className="quantity-display">
+                          {item.quantidade}
+                        </span>
                         <button
                           onClick={() =>
                             updateQuantity(item.doce.id, item.quantidade + 1)
@@ -85,19 +86,12 @@ const CartModal: React.FC<CartModalProps> = ({ isOpen, onClose }) => {
                         </button>
                       </div>
 
-                      <div className="item-total">
-                        {new Intl.NumberFormat("pt-BR", {
-                          style: "currency",
-                          currency: "BRL",
-                        }).format(item.doce.valor * item.quantidade)}
-                      </div>
-
                       <button
                         onClick={() => removeFromCart(item.doce.id)}
                         className="remove-btn"
                         title="Remover item"
                       >
-                        <X size={16} />
+                        <Trash2 size={16} />
                       </button>
                     </div>
                   </div>
@@ -131,4 +125,3 @@ const CartModal: React.FC<CartModalProps> = ({ isOpen, onClose }) => {
 };
 
 export default CartModal;
-

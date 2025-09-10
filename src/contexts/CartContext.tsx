@@ -1,13 +1,43 @@
-import { useState, useEffect } from 'react';
-import { CartItem, Cart, Doce } from '../types';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react";
+import { CartItem, Cart, Doce } from "../types";
 
-const CART_STORAGE_KEY = 'confeitaria_cart';
+const CART_STORAGE_KEY = "confeitaria_cart";
+
+interface CartContextType {
+  cart: Cart;
+  addToCart: (doce: Doce, quantidade?: number) => void;
+  removeFromCart: (doceId: number) => void;
+  updateQuantity: (doceId: number, quantidade: number) => void;
+  clearCart: () => void;
+  getItemCount: () => number;
+  generateWhatsAppMessage: () => string;
+}
+
+const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const useCart = () => {
+  const context = useContext(CartContext);
+  if (!context) {
+    throw new Error("useCart deve ser usado dentro de um CartProvider");
+  }
+  return context;
+};
+
+interface CartProviderProps {
+  children: ReactNode;
+}
+
+export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   const [cart, setCart] = useState<Cart>({
     items: [],
     total: 0,
-    totalFormatado: 'R$ 0,00'
+    totalFormatado: "R$ 0,00",
   });
 
   // Carregar carrinho do localStorage na inicialização
@@ -18,7 +48,8 @@ export const useCart = () => {
         const parsedCart = JSON.parse(savedCart);
         setCart(parsedCart);
       } catch (error) {
-        console.error('Erro ao carregar carrinho:', error);
+        console.error("❌ Erro ao carregar carrinho:", error);
+        localStorage.removeItem(CART_STORAGE_KEY);
       }
     }
   }, []);
@@ -29,19 +60,24 @@ export const useCart = () => {
   }, [cart]);
 
   const formatCurrency = (value: number): string => {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL'
+    return new Intl.NumberFormat("pt-BR", {
+      style: "currency",
+      currency: "BRL",
     }).format(value);
   };
 
   const calculateTotal = (items: CartItem[]): number => {
-    return items.reduce((total, item) => total + (item.doce.valor * item.quantidade), 0);
+    return items.reduce(
+      (total, item) => total + item.doce.valor * item.quantidade,
+      0
+    );
   };
 
   const addToCart = (doce: Doce, quantidade: number = 1) => {
-    setCart(prevCart => {
-      const existingItemIndex = prevCart.items.findIndex(item => item.doce.id === doce.id);
+    setCart((prevCart) => {
+      const existingItemIndex = prevCart.items.findIndex(
+        (item) => item.doce.id === doce.id
+      );
       let newItems: CartItem[];
 
       if (existingItemIndex >= 0) {
@@ -54,24 +90,26 @@ export const useCart = () => {
       }
 
       const newTotal = calculateTotal(newItems);
-      
-      return {
+
+      const newCart = {
         items: newItems,
         total: newTotal,
-        totalFormatado: formatCurrency(newTotal)
+        totalFormatado: formatCurrency(newTotal),
       };
+
+      return newCart;
     });
   };
 
   const removeFromCart = (doceId: number) => {
-    setCart(prevCart => {
-      const newItems = prevCart.items.filter(item => item.doce.id !== doceId);
+    setCart((prevCart) => {
+      const newItems = prevCart.items.filter((item) => item.doce.id !== doceId);
       const newTotal = calculateTotal(newItems);
-      
+
       return {
         items: newItems,
         total: newTotal,
-        totalFormatado: formatCurrency(newTotal)
+        totalFormatado: formatCurrency(newTotal),
       };
     });
   };
@@ -82,16 +120,16 @@ export const useCart = () => {
       return;
     }
 
-    setCart(prevCart => {
-      const newItems = prevCart.items.map(item =>
+    setCart((prevCart) => {
+      const newItems = prevCart.items.map((item) =>
         item.doce.id === doceId ? { ...item, quantidade } : item
       );
       const newTotal = calculateTotal(newItems);
-      
+
       return {
         items: newItems,
         total: newTotal,
-        totalFormatado: formatCurrency(newTotal)
+        totalFormatado: formatCurrency(newTotal),
       };
     });
   };
@@ -100,25 +138,31 @@ export const useCart = () => {
     setCart({
       items: [],
       total: 0,
-      totalFormatado: 'R$ 0,00'
+      totalFormatado: "R$ 0,00",
     });
   };
 
   const getItemCount = (): number => {
-    return cart.items.reduce((count, item) => count + item.quantidade, 0);
+    const count = cart.items.reduce(
+      (count, item) => count + item.quantidade,
+      0
+    );
+    return count;
   };
 
   const generateWhatsAppMessage = (): string => {
-    const whatsappNumber = '5515996747692';
-    let message = '🧁 *Pedido da Confeitaria Doce Sabor*\n\n';
-    
+    const whatsappNumber = "5515996747692";
+    let message = "🧁 *Pedido da Confeitaria Doce Sabor*\n\n";
+
     cart.items.forEach((item, index) => {
       message += `${index + 1}. *${item.doce.nome}*\n`;
       message += `   Quantidade: ${item.quantidade}\n`;
       message += `   Valor unitário: ${item.doce.valorFormatado}\n`;
-      message += `   Subtotal: ${formatCurrency(item.doce.valor * item.quantidade)}\n\n`;
+      message += `   Subtotal: ${formatCurrency(
+        item.doce.valor * item.quantidade
+      )}\n\n`;
     });
-    
+
     message += `💰 *Total do Pedido: ${cart.totalFormatado}*\n\n`;
     message += `Gostaria de finalizar este pedido. Aguardo contato!`;
 
@@ -126,14 +170,15 @@ export const useCart = () => {
     return `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
   };
 
-  return {
+  const value: CartContextType = {
     cart,
     addToCart,
     removeFromCart,
     updateQuantity,
     clearCart,
     getItemCount,
-    generateWhatsAppMessage
+    generateWhatsAppMessage,
   };
-};
 
+  return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
+};

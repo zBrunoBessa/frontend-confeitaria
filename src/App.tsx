@@ -2,10 +2,12 @@ import React, { useState } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import "./App.css";
 import { AuthProvider } from "./contexts/AuthContext";
+import { CartProvider } from "./contexts/CartContext";
 import Header from "./components/Layout/Header";
 import Footer from "./components/Layout/Footer";
 import ProductsSection from "./components/Products/ProductsSection";
 import CartModal from "./components/Cart/CartModal";
+import FixedCartButton from "./components/Cart/FixedCartButton";
 import SearchModal from "./components/Search/SearchModal";
 import Login from "./pages/Login";
 import AdminLayout from "./components/Admin/AdminLayout";
@@ -50,7 +52,14 @@ function App() {
           </Route>
 
           {/* Página Principal (Site do Cliente) */}
-          <Route path="/" element={<HomePage />} />
+          <Route
+            path="/"
+            element={
+              <CartProvider>
+                <HomePage />
+              </CartProvider>
+            }
+          />
         </Routes>
       </Router>
     </AuthProvider>
@@ -61,11 +70,6 @@ function App() {
 const HomePage: React.FC = () => {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-
-  const scrollToProducts = () => {
-    const productsSection = document.getElementById("produtos");
-    productsSection?.scrollIntoView({ behavior: "smooth" });
-  };
 
   const handleCartClick = () => {
     setIsCartOpen(true);
@@ -86,17 +90,6 @@ const HomePage: React.FC = () => {
   return (
     <div className="App">
       <Header onCartClick={handleCartClick} onSearchClick={handleSearchClick} />
-
-      {/* Hero Section */}
-      <section id="home" className="hero">
-        <div className="hero-content">
-          <h2>Os Melhores Doces Artesanais</h2>
-          <p>Feitos com amor e ingredientes selecionados há mais de 20 anos</p>
-          <button className="cta-button" onClick={scrollToProducts}>
-            Ver Produtos
-          </button>
-        </div>
-      </section>
 
       {/* Produtos Section */}
       <ProductsSection />
@@ -161,6 +154,9 @@ const HomePage: React.FC = () => {
       {/* Modais */}
       <CartModal isOpen={isCartOpen} onClose={closeCart} />
       <SearchModal isOpen={isSearchOpen} onClose={closeSearch} />
+
+      {/* Botão Fixo do Carrinho */}
+      <FixedCartButton onCartClick={handleCartClick} />
     </div>
   );
 };

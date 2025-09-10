@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Plus, Minus, ShoppingCart } from "lucide-react";
 import { Doce } from "../../types";
-import { useCart } from "../../hooks/useCart";
+import { useCart } from "../../contexts/CartContext";
 
 interface DoceCardProps {
   doce: Doce;
@@ -12,15 +12,25 @@ const DoceCard: React.FC<DoceCardProps> = ({ doce }) => {
   const [quantity, setQuantity] = useState(1);
   const [isAdding, setIsAdding] = useState(false);
 
-  const handleAddToCart = async () => {
-    setIsAdding(true);
-    addToCart(doce, quantity);
+  const handleAddToCart = () => {
+    if (!doce.disponivel) {
+      return;
+    }
 
-    // Feedback visual
-    setTimeout(() => {
+    setIsAdding(true);
+
+    try {
+      addToCart(doce, quantity);
+
+      // Feedback visual
+      setTimeout(() => {
+        setIsAdding(false);
+        setQuantity(1);
+      }, 1000);
+    } catch (error) {
+      console.error("❌ Erro ao adicionar produto:", error);
       setIsAdding(false);
-      setQuantity(1);
-    }, 500);
+    }
   };
 
   const incrementQuantity = () => {
@@ -76,6 +86,7 @@ const DoceCard: React.FC<DoceCardProps> = ({ doce }) => {
               onClick={handleAddToCart}
               className={`add-to-cart-btn ${isAdding ? "adding" : ""}`}
               disabled={isAdding}
+              type="button"
             >
               <ShoppingCart size={16} />
               {isAdding ? "Adicionado!" : "Adicionar"}
@@ -88,4 +99,3 @@ const DoceCard: React.FC<DoceCardProps> = ({ doce }) => {
 };
 
 export default DoceCard;
-
