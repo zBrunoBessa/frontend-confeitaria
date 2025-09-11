@@ -1,9 +1,9 @@
 import React from "react";
-import { ShoppingCart, Search, User, LogOut } from "lucide-react";
+import { ShoppingCart, User, LogOut } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useCart } from "../../contexts/CartContext";
 import { useAuth } from "../../contexts/AuthContext";
-
+import WebsiteLogo from "../../assets/WebsiteLogo.png";
 interface HeaderProps {
   onCartClick: () => void;
   onSearchClick: () => void;
@@ -26,26 +26,22 @@ const Header: React.FC<HeaderProps> = ({ onCartClick, onSearchClick }) => {
     <header className="header">
       <div className="container">
         <div className="header-content">
+          <div className="header-left">
+            <img
+              src={WebsiteLogo}
+              className="logo-image"
+              alt="Confeitaria Beeem Doce"
+            />
+          </div>
+
           <h1
-            className="logo"
+            className="logo-centered"
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
           >
-            🧁 Confeitaria Beeem Doce
+            Confeitaria Beeem Doce
           </h1>
-          <nav className="nav">
-            <a href="#home">Home</a>
-            <a href="#produtos">Produtos</a>
-            <a href="#sobre">Sobre</a>
-            <a href="#contato">Contato</a>
-          </nav>
+
           <div className="header-actions">
-            <button
-              className="action-button"
-              onClick={onSearchClick}
-              title="Buscar produtos"
-            >
-              <Search size={20} />
-            </button>
             <button
               className="cart-button"
               onClick={onCartClick}
